@@ -10,7 +10,6 @@ import generateTraffic from "@components/Training/generateTraffic";
 import generateGenes from "@components/Training/generateGenes";
 import generateGenomes from "@components/Training/generateGenomes";
 import NeuralNetwork from "@components/NN/NeuralNetwork";
-import { lerp } from "@utils/utils";
 
 const CarCanvas = ({ width, height }) => {
   const carCanvasRef = useRef(null);
@@ -24,18 +23,21 @@ const CarCanvas = ({ width, height }) => {
   const [run, setRun] = useState(false)
   const [showSensor, setShowSensor] = useState(true)
   const [showNN, setShowNN] = useState(true)
-  const [activationFunction, setActivationFunction] = useState('Binary Activation')
+  const [activationFunction, setActivationFunction] = useState('Tanh')
   const activationFunctions = ['Binary Activation', 'Tanh', 'ReLU', 'Sigmoid']
 
   let genomeExtinct = false
+  let fitnessThreshold = 200
+  let frameCounterThreshold = 100
+  let gotMaxFitness = false
   let trainingRunning = false
 
   // training parameters
   const [gen, setGen] = useState(1)
   const [genomeCount, setGenomeCount] = useState(5)
   const [populationCount, setPopulationCount] = useState(5)
-  const [geneCount, setGeneCount] = useState(2)
-  const [varianceFactor, setVarianceFactor] = useState(0.1)
+  const [geneCount, setGeneCount] = useState(2500)
+  const [varianceFactor, setVarianceFactor] = useState(20)
   const [currentGenome, setCurrentGenome] = useState(0)
   const [currentPopulation, setCurrentPopulation] = useState(0)
 
@@ -74,7 +76,8 @@ const CarCanvas = ({ width, height }) => {
     let trainingConfig = {
       populationCount: populationCount,
       genomeCount: genomeCount,
-      geneCount: geneCount
+      geneCount: geneCount,
+      varianceFactor: varianceFactor
     }
     localStorage.setItem("trainingConfig", JSON.stringify(trainingConfig))
   }
@@ -102,10 +105,7 @@ const CarCanvas = ({ width, height }) => {
         N = 1;
       } else if (mode === 'Evaluation') {
         controlType = 'AI';
-        N = 1;
-      } else {
-        controlType = 'AI';
-        N = geneCount;
+        N = 500;
       }
 
       let nnArch = [carConfig.rayCount, 6, 4];
@@ -133,7 +133,15 @@ const CarCanvas = ({ width, height }) => {
       )
 
       bestCar.current = cars.current[0];
-      savedGenome ? bestCar.current.brain = savedGenome : ''
+      // savedGenome ? bestCar.current.brain = savedGenome : ''
+      if (savedGenome) {
+        for (let i = 0; i < cars.current.length; i++) {
+          cars.current[i].brain = JSON.parse(JSON.stringify(savedGenome));
+          if (i != 0) {
+            NeuralNetwork.mutate(cars.current[i].brain, varianceFactor / 100);
+          }
+        }
+      }
     }
 
     traffic.current = generateTraffic(5, CAR_WIDTH, CAR_HEIGHT, road);
@@ -158,8 +166,6 @@ const CarCanvas = ({ width, height }) => {
 
     cars.current.map(c => !c.damaged ? c.fitness = getFitness(traffic.current, c) : '') // if not damanged update the fitness functions and move on
     cars.current = cars.current.sort((a, b) => (a.fitness < b.fitness) ? 1 : -1)
-    cars.current = cars.current.slice(0, 5000)
-
     // bestCar.current = getBestGene(cars.current)
     bestCar.current = cars.current[0]
     let deltaY = bestCar.current.fitness
@@ -192,9 +198,10 @@ const CarCanvas = ({ width, height }) => {
 
     setScore(parseInt(deltaY));
 
-    if (prev === deltaY || deltaY > 120) {
+    if (prev > fitnessThreshold) gotMaxFitness = true
+    if (prev === deltaY) {
       equalFramesCounter++;
-      if (equalFramesCounter === 50) {
+      if (equalFramesCounter === frameCounterThreshold) {
         genomeExtinct = true
       }
     } else {
@@ -224,6 +231,7 @@ const CarCanvas = ({ width, height }) => {
     const bestGenes = [];
     trainingRunning = true;
     let generationCount = 0; // Track the number of generations
+    setCurrentPopulation(0)
     const maxGenerationCount = populationCount; // Maximum number of generations
 
     const runGeneration = () => {
@@ -246,17 +254,18 @@ const CarCanvas = ({ width, height }) => {
             carConfig.rayCount,
             carConfig.rayLength,
             carConfig.raySpread,
-            // generationCount > 0 ? bestGene.brain.arch : currentGenome.arch,
-            currentGenome.arch,
+            generationCount > 0 ? bestGene.brain.arch : currentGenome.arch,
             activationFunction
           );
 
-          // if (generationCount > 0) {
-          //   genes.map(gene => gene.brain = bestGene.brain)
-          //   for (let i = 1; i < genes.length; i++){
-          //     NeuralNetwork.mutate(genes[i].brain, 0.2)
-          //   }
-          // }
+          if (generationCount > 0) {
+            for (let i = 0; i < genes.length; i++) {
+              genes[i].brain = JSON.parse(JSON.stringify(bestGene.brain));
+              if (i != 0) {
+                NeuralNetwork.mutate(genes[i].brain, varianceFactor / 100);
+              }
+            }
+          }
 
           initializeCanvas('Training');
           cars.current = genes;
@@ -267,7 +276,7 @@ const CarCanvas = ({ width, height }) => {
           startAnimation();
 
           const checkExtinct = () => {
-            if (genomeExtinct) {
+            if (genomeExtinct || gotMaxFitness) {
               stopAnimation();
               currentIndex++;
               genomeExtinct = false;
@@ -282,14 +291,12 @@ const CarCanvas = ({ width, height }) => {
           setCurrentGenome(currentIndex + 1);
         } else {
           console.log("Population completed");
-          generationCount++; // Increment the generation count
+          generationCount++;
           setCurrentPopulation(generationCount + 1);
-          console.log(generationCount)
 
           if (generationCount < maxGenerationCount) {
             // Continue to the next generation
             currentIndex = 0;
-            // bestGenes.length = 0;
             runGeneration(); // Recursive call to run the next generation
           } else {
             console.log("Training completed");
@@ -344,6 +351,9 @@ const CarCanvas = ({ width, height }) => {
     else if (e.target.name == "activationFunction") {
       setActivationFunction(e.target.value)
     }
+    else if (e.target.name == "varianceFactor") {
+      setVarianceFactor(parseFloat(e.target.value))
+    }
   }
 
   const handleModeChange = (event) => {
@@ -365,6 +375,7 @@ const CarCanvas = ({ width, height }) => {
       setPopulationCount(trainingConfig['populationCount'])
       setGeneCount(trainingConfig['geneCount'])
       setGenomeCount(trainingConfig['genomeCount'])
+      setVarianceFactor(trainingConfig['varianceFactor'])
     }
 
     initializeCanvas(mode);
@@ -506,7 +517,7 @@ const CarCanvas = ({ width, height }) => {
           </div>
           <div className='grid grid-cols-1 gap-6 mt-4 sm:grid-cols-3 my-5'>
             <RangeSlider
-              label="PopulationCount"
+              label="Population Count"
               name="populationCount"
               handleChange={handleChange}
               value={populationCount}
@@ -515,7 +526,7 @@ const CarCanvas = ({ width, height }) => {
               step={1}
             />
             <RangeSlider
-              label="GenomeCount"
+              label="Genome Count"
               name="genomeCount"
               handleChange={handleChange}
               value={genomeCount}
@@ -524,12 +535,21 @@ const CarCanvas = ({ width, height }) => {
               step={1}
             />
             <RangeSlider
-              label="GeneCount"
+              label="Gene Count"
               name="geneCount"
               handleChange={handleChange}
               value={geneCount}
               min={1}
               max={20000}
+              step={100}
+            />
+            <RangeSlider
+              label="Mutation Variance"
+              name="varianceFactor"
+              handleChange={handleChange}
+              value={varianceFactor}
+              min={1}
+              max={100}
               step={1}
             />
           </div>
@@ -611,17 +631,21 @@ const CarCanvas = ({ width, height }) => {
           </div>
         </div>
       </div>
-      <div className="flex-center flex-wrap">
-        <canvas
-          id="carCanvas"
-          ref={carCanvasRef}
-          className="mx-4"
-        />
-        <canvas
-          id="nnCanvas"
-          ref={nnCanvasRef}
-          className="mx-4"
-        />
+      <div className="flex justify-center flex-wrap">
+        <div>
+          <canvas
+            id="carCanvas"
+            ref={carCanvasRef}
+            className="mx-4 mt-16"
+          />
+        </div>
+        <div>
+          <canvas
+            id="nnCanvas"
+            ref={nnCanvasRef}
+            className="mx-4 mt-16"
+          />
+        </div>
       </div>
     </div>
   )

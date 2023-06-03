@@ -1,6 +1,16 @@
 import { lerp, getIntersection } from "@utils/utils";
 
+/**
+ * Sensor class represents the sensor system of the car.
+ */
 class Sensor {
+  /**
+   * Create a new Sensor instance.
+   * @param {Car} car - The car object associated with the sensor.
+   * @param {number} rayCount - The number of rays to cast.
+   * @param {number} rayLength - The length of each ray.
+   * @param {number} raySpread - The angular spread of the rays.
+   */
   constructor(car, rayCount, rayLength, raySpread) {
     this.car = car;
     this.rayCount = rayCount;
@@ -11,6 +21,11 @@ class Sensor {
     this.readings = [];
   }
 
+  /**
+   * Update the sensor readings based on the car's position and environment.
+   * @param {Array} roadBorders - An array of road border polygons.
+   * @param {Array} traffic - An array of traffic car objects.
+   */
   update(roadBorders, traffic) {
     this.#castRays();
     this.readings = [];
@@ -25,6 +40,13 @@ class Sensor {
     }
   }
 
+  /**
+   * Get the closest reading from a ray intersection with road borders and traffic cars.
+   * @param {Array} ray - The ray represented by two points (start and end).
+   * @param {Array} roadBorders - An array of road border polygons.
+   * @param {Array} traffic - An array of traffic car objects.
+   * @returns {Object|null} - The closest reading object or null if no intersection.
+   */
   #getReading(ray, roadBorders, traffic) {
     let touches = [];
 
@@ -55,23 +77,28 @@ class Sensor {
       }
     }
 
-    if (touches.length == 0) {
+    if (touches.length === 0) {
       return null;
     } else {
       const offsets = touches.map(e => e.offset);
       const minOffset = Math.min(...offsets);
-      return touches.find(e => e.offset == minOffset);
+      return touches.find(e => e.offset === minOffset);
     }
   }
 
+  /**
+   * Cast rays from the car's position to detect intersections with the environment.
+   * Private method.
+   */
   #castRays() {
     this.rays = [];
     for (let i = 0; i < this.rayCount; i++) {
-      const rayAngle = lerp(
-        this.raySpread / 2,
-        -this.raySpread / 2,
-        this.rayCount == 1 ? 0.5 : i / (this.rayCount - 1)
-      ) + this.car.angle;
+      const rayAngle =
+        lerp(
+          this.raySpread / 2,
+          -this.raySpread / 2,
+          this.rayCount === 1 ? 0.5 : i / (this.rayCount - 1)
+        ) + this.car.angle;
 
       const start = { x: this.car.x, y: this.car.y };
       const end = {
@@ -84,6 +111,10 @@ class Sensor {
     }
   }
 
+  /**
+   * Draw the sensor rays and their readings on a canvas context.
+   * @param {CanvasRenderingContext2D} ctx - The canvas context to draw on.
+   */
   draw(ctx) {
     for (let i = 0; i < this.rayCount; i++) {
       let end = this.rays[i][1];
@@ -112,4 +143,4 @@ class Sensor {
   }
 }
 
-export default Sensor
+export default Sensor;

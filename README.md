@@ -1,34 +1,46 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Autonomous Car Simulation
 
-## Getting Started
+This project is an autonomous car simulation that uses Next13 framework to visualize the behavior of self-driving cars on a road. The simulation includes features like car movement, collision detection, road boundaries, and traffic interaction.
 
-First, run the development server:
+![Simulation Screenshot](/screenshot.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Realistic car movement and physics simulation.
+- Self-driving cars controlled by neural networks and genetic algorithm.
+- Collision detection with road boundaries and other traffic cars.
+- Adjustable road layout and lane configurations.
+- Dynamic traffic generation.
+- Visualization of car sensors and readings.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Installation
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+1. Clone the repository: `git clone https://github.com/rudrodip/self-driving-car-simulation`
+2. Navigate to the project directory: `cd self-driving-car-simulation`
+3. run `yarn` in your terminal, after installation of all dependencies, run `yarn dev` in your terminal.
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+- Use the WASD keys to control the main car in the simulation.
+- Watch as the self-driving cars navigate the road and avoid collisions.
+- Experiment with different car configuration, activation functions for hidden layers, training configuration.
+- Adjust simulation parameters in the code to customize the behavior of the cars.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Contributions are welcome! If you have any ideas, suggestions, or bug reports, please open an issue on the [GitHub repository](https://github.com/rudrodip/self-driving-car-simulation).
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project is licensed under the [MIT License](LICENSE).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Acknowledgements
+
+- The simulation is built using Next13 and Javascript.
+- The project is inspired from [GitHub repository](https://github.com/gniziemazity/Self-driving-car).
+- The project structure and code organization are inspired by best practices from various sources.
+
+## Contact
+
+For any inquiries or questions, feel free to contact [Rudrodip Sarker](mailto:official.rudrodipsarker@gmail.com).
+

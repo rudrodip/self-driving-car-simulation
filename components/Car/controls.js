@@ -1,4 +1,11 @@
+/**
+ * Controls class handles user input for controlling the car.
+ */
 class Controls {
+  /**
+   * Create a new Controls instance.
+   * @param {string} type - The type of control. Possible values are "KEYS" and "DUMMY".
+   */
   constructor(type) {
     this.forward = false;
     this.left = false;
@@ -15,6 +22,10 @@ class Controls {
     }
   }
 
+  /**
+   * Add event listeners for keyboard input.
+   * Private method.
+   */
   #addKeyboardListeners() {
     document.onkeydown = (event) => {
       switch (event.key) {
@@ -51,4 +62,4 @@ class Controls {
   }
 }
 
-export default Controls
+export default Controls;

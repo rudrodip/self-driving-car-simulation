@@ -1,6 +1,12 @@
-import { lerp } from '@utils/utils'
+import { lerp } from '@utils/utils';
 
 class Road {
+  /**
+   * Constructs a road object.
+   * @param {number} x - The x-coordinate of the road's center.
+   * @param {number} width - The width of the road.
+   * @param {number} laneCount - The number of lanes on the road (default: 3).
+   */
   constructor(x, width, laneCount = 3) {
     this.x = x;
     this.width = width;
@@ -23,22 +29,30 @@ class Road {
     ];
   }
 
+  /**
+   * Get the x-coordinate of the center of a lane on the road.
+   * @param {number} laneIndex - The index of the lane.
+   * @returns {number} The x-coordinate of the lane center.
+   */
   getLaneCenter(laneIndex) {
     const laneWidth = this.width / this.laneCount;
-    return this.left + laneWidth / 2 +
-      Math.min(laneIndex, this.laneCount - 1) * laneWidth;
+    return (
+      this.left +
+      laneWidth / 2 +
+      Math.min(laneIndex, this.laneCount - 1) * laneWidth
+    );
   }
 
+  /**
+   * Draw the road on the canvas context.
+   * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+   */
   draw(ctx) {
     ctx.lineWidth = 5;
     ctx.strokeStyle = "white";
 
     for (let i = 1; i <= this.laneCount - 1; i++) {
-      const x = lerp(
-        this.left,
-        this.right,
-        i / this.laneCount
-      );
+      const x = lerp(this.left, this.right, i / this.laneCount);
 
       ctx.setLineDash([20, 20]);
       ctx.beginPath();
@@ -48,7 +62,7 @@ class Road {
     }
 
     ctx.setLineDash([]);
-    this.borders.forEach(border => {
+    this.borders.forEach((border) => {
       ctx.beginPath();
       ctx.moveTo(border[0].x, border[0].y);
       ctx.lineTo(border[1].x, border[1].y);
@@ -57,4 +71,4 @@ class Road {
   }
 }
 
-export default Road
+export default Road;

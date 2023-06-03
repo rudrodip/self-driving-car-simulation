@@ -1,9 +1,24 @@
 import '@styles/globals.css'
 
 export const metadata = {
-  title: 'Car FSD NN',
-  description: 'A neural network',
-}
+  title: 'Self-Driving Car Simulation',
+  description: 'A simulation of self-driving cars using neural networks and genetic algorithm',
+  author: 'Rudrodip Sarker',
+  keywords: ['Self-Driving Car', 'Simulation', 'Neural Networks', 'Artificial Intelligence', 'JavaScript', 'Web Development'],
+  image: '/screenshot.png',
+  url: 'https://sdc-simulation.vercel.app',
+  icons: {
+    icon: '/logo.png',
+  },
+  images: [
+    {
+      url: '/screenshot.png',
+      width: 800,
+      height: 600,
+      alt: 'Self-driving Car Simulation'
+    },
+  ],
+};
 
 export default function RootLayout({ children }) {
   return (
