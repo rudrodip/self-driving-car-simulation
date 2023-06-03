@@ -2,7 +2,7 @@
 
 This project is an autonomous car simulation that uses Next13 framework to visualize the behavior of self-driving cars on a road. The simulation includes features like car movement, collision detection, road boundaries, and traffic interaction.
 
-![Simulation Screenshot](/screenshot.png)
+![Simulation Screenshot](https://github.com/rudrodip/self-driving-car-simulation/blob/main/public/screenshot.png)
 
 ## Features
 
