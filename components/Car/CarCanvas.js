@@ -105,7 +105,7 @@ const CarCanvas = ({ width, height }) => {
         N = 1;
       } else if (mode === 'Evaluation') {
         controlType = 'AI';
-        N = 500;
+        N = 1;
       }
 
       let nnArch = [carConfig.rayCount, 6, 4];
